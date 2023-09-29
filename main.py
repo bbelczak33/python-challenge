@@ -2,60 +2,51 @@ import os
 import csv
 
 # Set path for file
-csvpath = os.path.join("Resources/budget_data.csv")
-txtpath = os.path.join("analysis/budget_analysis.txt")
+csvpath = os.path.join("Resources/election_data.csv")
+txtpath = os.path.join("analysis/election_analysis.txt")
 
 # Places to store data
-dates = []
-pl = []
-pl_int = []
-total_months = 0
-pl_change = []
+candidate_votes = {}
+vote_percentage = []
+candidate_names = []
+candidate_v = []
+final_candidate = {}
+total_votes = 0
 
 # Open the CSV using the UTF-8 encoding
 with open(csvpath, encoding='UTF-8') as csvfile:
-    csv_pybank = csv.reader(csvfile, delimiter=",")
-    header = next(csv_pybank)
-
-    for row in csv_pybank:
-        # Add dates
-        dates.append(row[0])
+    csv_pypoll = csv.reader(csvfile, delimiter=",")
+    header = next(csv_pypoll)
+    
+    for row in csv_pypoll:
+        # Find candidate vote counts
+        name = row[2]
+        candidate_votes[name] = candidate_votes.get(name, 0) + 1
         
-        # Add profits/losses
-        pl.append(row[1])
+        # Count the total votes cast
+        total_votes = total_votes + 1
         
-        # Calculate total months
-        total_months = total_months + 1
-        
-    for i in pl:
-        # Convert pl into integers
-        value = int(i)
-        pl_int.append(value)
-        
-    for i in range(1, len(pl_int)):
-        # Create list of changes in profit
-        value = pl_int[i] - pl_int[i - 1]
-        pl_change.append(value)
 
-# Create objects for max and min change dates
-date_max = dates[pl_change.index(max(pl_change)) + 1]
-date_min = dates[pl_change.index(min(pl_change)) + 1]
-        
-# Print total months
-print("Total Months:", total_months)
+for key, value in candidate_votes.items():
+    # Create string of candidate names
+    i = str(key)
+    candidate_names.append(i)
+    
+    #Create string of candidate vote totals
+    j = int(value)
+    candidate_v.append(j)
+    
+    # Find and create string of percentage of votes
+    percent = round(value/total_votes * 100, 3)
+    vote_percentage.append(f'{float(percent)}%')
+    
+# Create new dictionary with candidate names and their votes  
+final_candidate = dict(zip(candidate_names, candidate_v))
 
-# Find and print the total profit
-print("Total Profit:", f'${sum(pl_int)}')
+#Create object with value of winning number of votes
+max_votes = max(candidate_v)
 
-# Find and print the average change in profit
-print("Average Change:", f'${round(sum(pl_change)/(total_months - 1), 2)}')
-
-# Find and print the greatest increase in profit and its corresponding date
-print("Greatest Increase in Profits:", date_max, f'(${max(pl_change)})')
-
-# Find and print the greatest decrease in profit and its corresponding date
-print("Greatest Decrease in Profits:", date_min, f'(${min(pl_change)})')
-
+# Create text file
 with open(txtpath, 'w') as txtfile:
 
 
